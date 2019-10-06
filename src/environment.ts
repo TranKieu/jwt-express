@@ -14,6 +14,10 @@ export class Environment {
     }
 
     public static getJWTSecret(): string {
-        return "@Tab@llen";
+        return '@Tab@llen';
+    }
+
+    public static getTokenHeaderKey(): string {
+        return 'X-token';
     }
 }

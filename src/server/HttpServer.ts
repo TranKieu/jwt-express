@@ -9,12 +9,12 @@ import { RequestHandler } from 'express';
 
 export interface HttpServer {
 
-    get(url: string, handler: RequestHandler): void;
+    get(url: string, ...handler: RequestHandler[]): void;
 
-    post(url: string, handler: RequestHandler): void;
+    post(url: string, ...handler: RequestHandler[]): void;
 
-    put(url: string, handler: RequestHandler): void;
+    put(url: string, ...handler: RequestHandler[]): void;
 
-    delete(url: string, handler: RequestHandler): void;
-	// Nếu cần thêm Methode thì khai báo vào đây
+    delete(url: string, ...handler: RequestHandler[]): void;
+    // Nếu cần thêm Methode thì khai báo vào đây
 }

@@ -12,10 +12,10 @@ import { Environment } from '../environment';
 
 // Middlewares
 import { errorHandler, cannotGet }
-    from '../middlewares/errorhandler.middlware';
+    from '../middlewares/errorhandler.middleware';
 import { noCache } from '../middlewares/nocache.middleware';
 import { checkRole, authorization }
-    from '../middlewares/auth.middlware';
+    from '../middlewares/auth.middleware';
 /**
  * helmet
  * compress
@@ -64,7 +64,7 @@ export class ExpressServer implements HttpServer {
 
 
     private setupSercurityMiddlewares(server: Express) {
-        server.use(noCache);
+         server.use(noCache);
     }
 
     private listen(server: Express, port: number): Server {
@@ -113,26 +113,26 @@ export class ExpressServer implements HttpServer {
         server.use(errorHandler);
     }
 
-    get(url: string, handler: RequestHandler): void {
+    get(url: string, ...handler: RequestHandler[]): void {
 
         this.showRouter('GET', url);
         // handler tự động lấy req và res của Connection
         this.server.get(url, handler);
     }
 
-    post(url: string, handler: RequestHandler): void {
+    post(url: string, ...handler: RequestHandler[]): void {
 
         this.showRouter('POST', url);
         this.server.post(url, handler);
     }
 
-    put(url: string, handler: RequestHandler): void {
+    put(url: string, ...handler: RequestHandler[]): void {
 
         this.showRouter('PUT', url);
         this.server.put(url, handler);
     }
 
-    delete(url: string, handler: RequestHandler): void {
+    delete(url: string, ...handler: RequestHandler[]): void {
 
         this.showRouter('DELETE', url);
         this.server.delete(url, handler);
