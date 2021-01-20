@@ -8,7 +8,7 @@ import { environment } from '../environment';
 import { Forbidden, PreconditionFailed, Unauthorized } from '../errors';
 
 // Import Services
-import { User } from '../services/user.service';
+import { User } from '../entity/user';
 import {
   authencationService,
   DataStoredInToken
