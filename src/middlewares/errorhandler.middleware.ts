@@ -3,7 +3,10 @@ import { HttpError } from '../errors/http-error';
 import { NotFound } from '../errors';
 
 // production = ko đưa chi tiết lỗi về client
-import { environment } from '../environment';
+/** Các cách đưa lỗi ra tại Middlewares
+ * + next(new Error()) + return;
+ * + Throw chỉ dùng cho tryCatch
+ */
 
 export const errorHandler = async (
   err: HttpError,
@@ -11,28 +14,27 @@ export const errorHandler = async (
   res: Response,
   next: NextFunction
 ) => {
+  // Default Error
+  const errorResonse = {
+    success: false,
+    name: 'Error',
+    message: 'something wrong!',
+    error: {}
+  };
+
   if (err instanceof HttpError) {
-    // Error chuẩn
-    let errorResonse = {
-      success: false,
-      name: 'Error',
-      message: 'something wrong!',
-      error: {}
-    };
-
-    // Dua gia tri vao Response
+    // Lấy các giá trị từ lỗi ra để gửi về
     errorResonse.name = err.name;
-    errorResonse.message = err.message; // cai nay se hien cho client
-    // err phai mo ta tot hon ve chi hien khi develop
-    errorResonse.error = err;
-
-    // Gui ve
+    errorResonse.message = err.message;
     res.status(err.status);
-    res.json(errorResonse);
   } else {
     // Error chưa được khai báo
-    res.status(404).json(err);
+    res.status(404);
   }
+  // Chỉ hiện ra khi developer
+  errorResonse.error = err;
+  // gửi về
+  res.json(errorResonse);
 };
 
 // catch 404 and forward to error handler
@@ -41,16 +43,10 @@ export const cannotGet = async (
   res: Response,
   next: NextFunction
 ) => {
-  /** Các cách đưa lỗi ra tại Middlewares
-   * + next(new Error())
-   * + Throw ko dung dc no chi in ra loi tai log
-   */
-
-  /** Đưa lỗi trong Handler
-   * ket thuc return,
-   * thu next và throws xem sao
-   *
-   */
+  /** Routes được đọc từ trên xuống
+   *  + Tới cái này thì Đưa lỗi ra
+   *  + Next tới ErrorHandler để gửi về Client
+   * */
   let url = req.method + req.url;
   next(new NotFound(url));
 };
