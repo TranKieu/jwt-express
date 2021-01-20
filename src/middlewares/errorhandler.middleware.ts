@@ -1,20 +1,22 @@
 import { Response, Request, NextFunction } from 'express';
-import { HttpError } from '../errors/HttpError';
-import { NotFound } from '../errors/notfound.error';
+import { HttpError } from '../errors/http-error';
+import { NotFound } from '../errors';
 
 // production = ko đưa chi tiết lỗi về client
-import { Environment } from "../environment";
+import { environment } from '../environment';
 
 export const errorHandler = async (
-  err: HttpError, req: Request, res: Response, next: NextFunction
+  err: HttpError,
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-
   if (err instanceof HttpError) {
     // Error chuẩn
     let errorResonse = {
       success: false,
-      name: "Error",
-      message: "something wrong!",
+      name: 'Error',
+      message: 'something wrong!',
       error: {}
     };
 
@@ -35,11 +37,20 @@ export const errorHandler = async (
 
 // catch 404 and forward to error handler
 export const cannotGet = async (
-  req: Request, res: Response, next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   /** Các cách đưa lỗi ra tại Middlewares
-   * + Throw = chỉ dùng trong service  
-   * + next(new Error()) = tại controller sau catch Errors từ service
+   * + next(new Error())
+   * + Throw ko dung dc no chi in ra loi tai log
    */
-  next(new NotFound(req.method + ' : ' + req.url));
+
+  /** Đưa lỗi trong Handler
+   * ket thuc return,
+   * thu next và throws xem sao
+   *
+   */
+  let url = req.method + req.url;
+  next(new NotFound(url));
 };

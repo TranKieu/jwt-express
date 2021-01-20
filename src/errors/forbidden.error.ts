@@ -1,13 +1,15 @@
-import { HttpError } from './HttpError';
-import { Request } from 'express';
+import { isObject } from 'class-validator';
+import { HttpError } from './http-error';
 
 export class Forbidden extends HttpError {
-    name = 'ForbiddenError';
-    status = 403;
-    constructor(req: string) {
-        super();
-        this.message =
-            `You're missing permission to execute this request ${req} !`;
-        Object.setPrototypeOf(this, Forbidden.prototype);
+  name = 'ForbiddenError';
+  status = 403;
+  message = "You don't have permission!";
+  constructor(message?: string) {
+    super();
+    Object.setPrototypeOf(this, Forbidden.prototype);
+    if (message) {
+      this.message = message;
     }
+  }
 }

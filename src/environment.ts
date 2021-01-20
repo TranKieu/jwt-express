@@ -1,23 +1,22 @@
-export class Environment {
-
-    public static getVersion(): string {
-        return '/api/v1';
-    }
-
-    // khi deloy thay bằng 'production'
-    public static getENV() {
-        return (process.env.NODE_ENV) || 'development';
-    }
-
-    public static getPort(): number {
-        return (process.env.PORT as any) || 3000;
-    }
-
-    public static getJWTSecret(): string {
-        return '@Tab@llen';
-    }
-
-    public static getTokenHeaderKey(): string {
-        return 'X-token';
-    }
-}
+export const environment = {
+  production: process.env.NODE_ENV || 'development',
+  API_URL: '/api/v1',
+  PORT: ((process.env.PORT as unknown) as number) || 3000,
+  TOKEN_HEADER: 'Authorization',
+  TOKEN_KEY: '@Tab@llen',
+  TOKEN_EXP: '1h',
+  CORS_OPT: {
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'X-Access-Token',
+      'Authorization'
+    ],
+    exposedHeaders: ['Content-Length', 'Authorization', 'X-Custome'],
+    credentials: true,
+    methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+    origin: '*'
+  }
+};

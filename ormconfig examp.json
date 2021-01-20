@@ -1,24 +1,26 @@
 {
-   "type": "mysql",
-   "host": "localhost",
-   "port": 3306,
-   "username": "",
-   "password": "",
-   "database": "",
-   "synchronize": true,
-   "logging": false,
-   "entities": [
-      "src/entity/**/*.ts"
-   ],
-   "migrations": [
-      "src/migration/**/*.ts"
-   ],
-   "subscribers": [
-      "src/subscriber/**/*.ts"
-   ],
-   "cli": {
-      "entitiesDir": "src/entity",
-      "migrationsDir": "src/migration",
-      "subscribersDir": "src/subscriber"
-   }
+     "synchronize": true,
+     "logging": false,
+     "entities": [
+          "src/entity/**/*.{ts,js}"
+     ],
+     "migrations": [
+          "src/migration/**/*.{ts,js}"
+     ],
+     "subscribers": [
+          "src/subscriber/**/*.{ts,js}"
+     ],
+     "cli": {
+          "entitiesDir": "src/entity",
+          "migrationsDir": "src/migration",
+          "subscribersDir": "src/subscriber"
+     },
+     "host": "localhost",
+     "username": "",
+     "password": "",
+     "database": "",
+     "type": "mongodb",
+     "port": 27017,
+     "useNewUrlParser": true,
+     "useUnifiedTopology": true
 }

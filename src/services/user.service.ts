@@ -1,104 +1,73 @@
-import { User } from '../entity/User';
-export { User, UserRole } from '../entity/User';
-import { getRepository } from "typeorm";
-import { NotFound } from '../errors/notfound.error';
-import { Duplication } from '../errors/duplicate.erors';
-/**
- * import {getConnection} from "typeorm"; //calling typeORM
- * getConnection().getRepository(Users).find(); 
- *  */
+import { ObjectID } from 'mongodb';
+import { getMongoRepository } from 'typeorm';
+import { User } from '../entity/user';
+
+import { NotFound, ResourceExist } from '../errors';
 
 class UserService {
-
-    public async getAll(): Promise<User[]> {
-        // const connection = await DatabaseProvider.getConnection();
-        //return await connection.getRepository(Users).find();
-        return await getRepository(User).find({
-            select: ["userId", "username", "role"]
-        });
+  public async getById(id: string): Promise<User> {
+    try {
+      return await getMongoRepository(User).findOneOrFail(id, {
+        select: ['userId', 'username', 'role']
+      });
+    } catch (error) {
+      throw new NotFound(`User ${id}`);
     }
+  }
 
-    public async getById(id: number): Promise<User> {
-        // findOne({ field: "value" })
-        try {
-            return await getRepository(User)
-                .findOneOrFail(id, {
-                    select: ["userId", "username", "role"]
-                });
-        } catch (error) {
-            throw new NotFound(`User : ${id}`);
-        }
+  public async getAll(): Promise<User[]> {
+    try {
+      return await getMongoRepository(User).find({
+        select: ['userId', 'username', 'role']
+      });
+    } catch (error) {
+      throw error;
     }
+  }
 
-    public async create(user: User): Promise<User> {
-        try {
-            // Return user được lưu vào DB
-            return await getRepository(User).save(user);
-        } catch (error) {
-            // tùy từng database mà có code khác nhau
-            if (error.code === 'ER_DUP_ENTRY') {
-                throw new Duplication(`This User ${user}`);
-            } else {
-                throw error;
-            }
-        }
+  public async create(user: User): Promise<User> {
+    // insert Resource
+    try {
+      return await getMongoRepository(User).save(user);
+    } catch (error) {
+      // tùy từng database mà có code khác nhau
+      // MySQL: ER_DUP_ENTRY
+      if (error.code === 11000) {
+        throw new ResourceExist(`User ${user.username}`);
+      } else {
+        throw error;
+      }
     }
+  }
 
-    public async update(user: User): Promise<User> {
+  public async update(id: string, user: User): Promise<boolean> {
+    try {
+      // UpdateResult
+      const result = await getMongoRepository(User).findOneAndUpdate(
+        { _id: new ObjectID(id) },
+        { $set: { ...user, updatedAt: new Date() } }
+      );
 
-        let updateUser: User;
-        try {
-            updateUser = await getRepository(User).findOneOrFail(user.userId);
-        } catch (error) {
-            throw new NotFound(`User ${user.userId}`);
-        }
-
-        /** let result = x || 10;
-         *  result = 10 wenn x =
-         *   +  0
-         *   +  null
-         *   +  undefined
-         *   +  NaN
-         *   +  "" (empty string)
-         *   +  false  <= chú ý vs các trường boolean
-         */
-        // thực tế chỉ update role cho user => ko validate
-        updateUser.role = user.role || updateUser.role;
-        updateUser.username = user.username || updateUser.username;
-        if (user.password && user.password.length > 5) {
-            updateUser.password = user.password;
-            updateUser.hashPassword();
-        }
-
-        try {
-            // Trả về user được save
-            return await getRepository(User).save(updateUser);
-
-        } catch (error) {
-            if (error.code === 'ER_DUP_ENTRY') {
-                throw new Duplication(`This User ${user}`);
-            } else {
-                throw error;
-            }
-        }
+      return result.value ? true : false;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ResourceExist(`User ${user.username}`);
+      } else {
+        console.log(error);
+        throw error;
+      }
     }
+  }
 
-    /** Delete: Có 2 cách
-     * + xóa bằng delete(id) kết quả trả về 
-     * 
-     * 
-     * + xóa bằng 
-     */
-    public async delete(id: number): Promise<number> {
-        try {
-            // khi delete luon chu y relation cua DB
-            const delResult = await getRepository(User).delete(id);
-            return delResult.affected; // trả về số rows bị xóa
-        } catch (error) {
-            // lỗi từ database
-            throw error;
-        }
+  public async delete(id: string): Promise<boolean> {
+    try {
+      const del = await getMongoRepository(User).findOneAndDelete({
+        _id: new ObjectID(id)
+      });
+      return del.value ? true : false;
+    } catch (error) {
+      throw error;
     }
+  }
 }
-
 export const userService = new UserService();

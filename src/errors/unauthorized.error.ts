@@ -1,12 +1,14 @@
-import { HttpError } from './HttpError';
+import { HttpError } from './http-error';
 
-// giống vs lỗi token bỏ đi cũng dc
 export class Unauthorized extends HttpError {
-    name = 'UnauthorizedError';
-    status = 403;
-    message = 'You are not authorized';
-    constructor() {
-        super();
-        Object.setPrototypeOf(this, Unauthorized.prototype);
+  name = 'UnauthorizedError';
+  status = 401;
+  message = 'Authentication Token is invaild or has expired!';
+  constructor(credential?: string) {
+    super();
+    Object.setPrototypeOf(this.message, Unauthorized.prototype);
+    if (credential) {
+      this.message = credential;
     }
+  }
 }

@@ -1,62 +1,48 @@
 import {
-    Entity, PrimaryGeneratedColumn,
-    Column, CreateDateColumn, UpdateDateColumn
+  Entity,
+  ObjectIdColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn
 } from 'typeorm';
 import { Length, IsEnum } from 'class-validator';
-import bcrypt from 'bcrypt';
+
+import bcrypt from 'bcryptjs';
 
 export enum UserRole {
-    ADMIN = "admin",
-    GHOST = "ghost"
+  ADMIN = 'admin',
+  GHOST = 'ghost'
 }
 
 @Entity()
 export class User {
+  @ObjectIdColumn()
+  userId!: string;
 
-    @PrimaryGeneratedColumn()
-    userId: number;
+  @Column({ unique: true })
+  @Length(4, 20)
+  username!: string;
 
-    @Column({
-        type: "varchar",
-        unique: true,
-        length: 20
-    })
-    @Length(4, 20)
-    username: string;
+  @Column()
+  @Length(6, 100)
+  password!: string;
 
-    @Column({
-        length: 100,
-        type: "varchar"
-    })
-    @Length(6, 100)
-    password: string;
+  @CreateDateColumn()
+  createdAt!: Date;
 
-    @Column({
-        type: "datetime"
-    })
-    @CreateDateColumn()
-    createdAt: string;
+  // chỉ chạy với save
+  @UpdateDateColumn()
+  updatedAt?: Date;
 
-    @Column({
-        type: "datetime"
-    })
-    @UpdateDateColumn()
-    updatedAt: string;
+  @Column()
+  @IsEnum(UserRole)
+  role!: UserRole;
 
-    @Column({
-        type: "enum",
-        enum: UserRole,
-        default: UserRole.GHOST
-    })
-    @IsEnum(UserRole)
-    role: UserRole;
+  hashPassword() {
+    if (this.password) this.password = bcrypt.hashSync(this.password, 10);
+  }
 
-    hashPassword() {
-        this.password = bcrypt.hashSync(this.password, 10);
-    }
-
-    checkPasswordIsValidate(unencryptedPass: string) {
-        return bcrypt.compareSync(unencryptedPass, this.password);
-    }
-
+  checkPasswordIsValidate(unencryptedPass: string) {
+    return bcrypt.compareSync(unencryptedPass, this.password);
+  }
 }
